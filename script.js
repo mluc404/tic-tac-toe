@@ -21,6 +21,8 @@ function createGameboard() {
   let getBoard = () => arr;
   let placeMark = (position, mark) => {
     if (arr[position] === "") arr[position] = mark;
+    else
+      alert(`This spot ${position} is already taken. Choose a differnt move`);
     return arr;
   };
 
@@ -45,25 +47,109 @@ let playerO = createPlayer("Elle", "O");
 function gameController(board, playerX, playerO) {
   let currentPlayer = playerX;
   let turnCount = 0;
+  let isGameOver = false;
+  let winner = null;
+
+  let winCondition = {
+    win1: [0, 1, 2],
+    win2: [3, 4, 5],
+  };
+
+  let checkWinTie = () => {
+    let currentBoard = board.getBoard();
+
+    // winCondition.win1.every()
+
+    if (currentBoard[0] === "X" && currentBoard[1] === "X") {
+      winner = playerX;
+      isGameOver = true;
+      alert(`winner is ${playerX.name}`);
+    } else {
+      if (!currentBoard.includes("")) {
+        isGameOver = true;
+        alert("Game over. Its a tie");
+      }
+    }
+  };
+
   let playTurn = (n) => {
-    turnCount % 2 === 0 ? (currentPlayer = playerX) : (currentPlayer = playerO);
-    turnCount++;
-    board.placeMark(n, currentPlayer.mark);
+    if (!isGameOver && winner === null) {
+      turnCount % 2 === 0
+        ? (currentPlayer = playerX)
+        : (currentPlayer = playerO);
+      board.placeMark(n, currentPlayer.mark);
+      checkWinTie();
+      turnCount++;
+    }
   };
 
   let printBoard = () => board.getBoard();
 
-  return { playTurn, printBoard };
+  let resetGame = () => board.reset();
+
+  return { playTurn, printBoard, resetGame };
 }
 
 let game = gameController(board, playerX, playerO);
 
-console.log(game.printBoard());
-game.playTurn(6);
-game.playTurn(4);
-game.playTurn(1);
-game.playTurn(2);
-game.playTurn(0);
-game.playTurn(3);
+// console.log(game.printBoard());
 
-console.log(game.printBoard());
+// for (let i = 0; i < 9; i++) {
+//   game.playTurn(i);
+// }
+
+game.playTurn(6); // X
+game.playTurn(4); // O
+game.playTurn(3); // X
+game.playTurn(2); // O
+game.playTurn(0);
+game.playTurn(8);
+game.playTurn(7);
+game.playTurn(1);
+// game.playTurn(5);
+// game.playTurn(1);
+
+// console.log(game.printBoard());
+
+// game.resetGame();
+// console.log(game.printBoard());
+
+let winCondition = {
+  con1: [0, 1, 2],
+  con2: [3, 4, 5],
+  con3: [6, 7, 8],
+  con4: [0, 3, 6],
+  con5: [1, 4, 7],
+  con6: [2, 5, 8],
+  con7: [0, 4, 8],
+  con8: [2, 4, 6],
+};
+
+let arr = ["x", "o", "x", "", "o", "o", "", "o", "o"];
+console.log(arr);
+
+// Only run findWinner() when countTurn is at least 4
+// because there cant be a winner under 4 turns
+function checkWinOrTie() {
+  for (let con in winCondition) {
+    let doesXwin = winCondition[con].every((index) => arr[index] === "x");
+    if (doesXwin) {
+      console.log("Winner is x");
+      console.log("Location: ", winCondition[con]);
+      return;
+    }
+    let doesOwin = winCondition[con].every((index) => arr[index] === "o");
+    if (doesOwin) {
+      console.log("Winner is o");
+      console.log("Location: ", winCondition[con]);
+      return;
+    }
+  }
+  // After running the loop, and there's no winner, check if the board is full
+  // If board is full, the game is a tie
+  if (!arr.includes("")) {
+    console.log("This game is a tie");
+  }
+}
+
+checkWinOrTie();
