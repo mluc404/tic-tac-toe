@@ -17,16 +17,16 @@
 // Create gameboard object
 function createGameboard() {
   let arr = new Array(9).fill("");
-  let isMarkValid = false;
 
   let getBoard = () => arr;
   let placeMark = (position, mark) => {
+    let isMarkValid = false;
     if (arr[position] === "") {
       arr[position] = mark;
       isMarkValid = true;
     } else {
       isMarkValid = false;
-      alert(`This spot ${position} is already taken. Choose a differnt spot`);
+      // alert(`This spot ${position} is already taken. Choose a differnt spot`);
     }
     return isMarkValid;
   };
@@ -36,6 +36,13 @@ function createGameboard() {
   return { getBoard, placeMark, reset };
 }
 let board = createGameboard();
+let board2 = createGameboard();
+board2.placeMark(0, "k");
+// board2.placeMark(0, "m");
+
+console.log("testing board only <<<<<<<<<<<<");
+console.log(board2.getBoard());
+console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 // Create player object
 function createPlayer(name, mark) {
@@ -44,84 +51,99 @@ function createPlayer(name, mark) {
 let playerX = createPlayer("Mike", "x");
 let playerO = createPlayer("Elle", "o");
 
-// Create Game Controller
+/////////////////////////////////////////////////////////////
+// Create Game Controller IIFE
 // Track the current player, game state (active or over), and use the Gameboard object
 // Include methods like playTurn(), checkWinner(), resetGame()
-function gameController(board, playerX, playerO) {
-  let currentPlayer = playerX;
+let gameController = function (board, playerX, playerO) {
+  let players = [playerX, playerO];
+  let currentPlayer = null;
   let turnCount = 0;
   let isGameOver = false;
   let winner = null;
 
-  let winCondition = {
-    con1: [0, 1, 2],
-    con2: [3, 4, 5],
-    con3: [6, 7, 8],
-    con4: [0, 3, 6],
-    con5: [1, 4, 7],
-    con6: [2, 5, 8],
-    con7: [0, 4, 8],
-    con8: [2, 4, 6],
-  };
+  let turnOutcome = null;
+
+  let winConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
   // Only run checkWinOrTie() when turnCount is at least 4
   // because there cant be a winner under 4 turns
   let checkWinOrTie = () => {
-    for (let con in winCondition) {
+    let currentBoard = board.getBoard();
+    for (condition of winConditions) {
       // Check if playerX wins
-      let doesXwin = winCondition[con].every(
-        (index) => board.getBoard()[index] === "x"
-      );
+      let doesXwin = condition.every((index) => currentBoard[index] === "x");
       if (doesXwin) {
         winner = playerX;
         isGameOver = true;
+        // alert("Game Over");
+
         console.log(`Winner is x after ${turnCount} turns`);
-        console.log("Location: ", winCondition[con]);
-        console.log(board.getBoard());
-        return;
+        console.log("Location: ", condition);
+        console.log(currentBoard);
+        return `Winner is x after ${turnCount} turns`;
       }
       // Check if playerO win
-      let doesOwin = winCondition[con].every(
-        (index) => board.getBoard()[index] === "o"
-      );
+      let doesOwin = condition.every((index) => currentBoard[index] === "o");
       if (doesOwin) {
         winner = playerO;
         isGameOver = true;
+        // alert("Game Over");
+
         console.log(`Winner is o after ${turnCount} turns`);
-        console.log("Location: ", winCondition[con]);
-        console.log(board.getBoard());
-        return;
+        console.log("Location: ", condition);
+        console.log(currentBoard);
+        return `Winner is o after ${turnCount} turns`;
       }
     }
     // After running the loop, and there's no winner, check if the array is full
     // If array is full, the game is a tie
-    if (!board.getBoard().includes("")) {
+    if (!currentBoard.includes("")) {
       isGameOver = true;
       console.log("This game is a tie");
+      // alert("Game Over");
+      return "This game is a tie";
+    } else {
+      return "Game is still in progress";
     }
   };
 
   // Function to play each turn
   // Check if game is over first
-  // todo: need a better way to switch player, prevent invalid moves
+  // Flow: Decide current player - Place their mark - Check win/tie - Increment turns if valid
   let playTurn = (n) => {
     // if (turnCount >= 4) checkWinOrTie(); // why checkWinOrTie doesn't work properly out here, but works fine inside the below if() ???
-    // console.log(turnCount);
-    // console.log(`is game over: ${isGameOver}`);
-    // console.log(`winner: ${winner}`);
+    console.log("turn count herer:", turnCount);
+
     if (!isGameOver && winner === null) {
-      turnCount % 2 === 0
-        ? (currentPlayer = playerX)
-        : (currentPlayer = playerO);
+      currentPlayer = players[turnCount % 2]; // playerX if turnCount is even, playerO if odd
       let isMoveValid = board.placeMark(n, currentPlayer.mark);
-      if (turnCount >= 4) checkWinOrTie(); // why checkWinOrTie only works well inside this if() ???
+      // isMoveValid will interact with DOM later to tell player if their move is invalid
+      if (turnCount >= 4) {
+        let checkResult = checkWinOrTie(); // checkResult is for DOM later if needed
+      } // why checkWinOrTie only works well inside this if() ???
       if (isMoveValid && !isGameOver) turnCount++; // check if the move is valid and game is not over before incrementing turnCount
     } else {
+      // handle when player makes a turn after game over
+      // will add more later when I know what to do for DOM
       console.log(`final count: ${turnCount}`);
       console.log(`is game over down here: ${isGameOver}`);
-      console.log(`winner down here: ${winner.name}`);
+      if (winner) {
+        console.log(`winner down here: ${winner.name}`);
+      }
       console.log("Yo game is alreay overr");
     }
+
+    return turnOutcome; // placeholder for now. will decide with DOM later
   };
 
   let printBoard = () => board.getBoard();
@@ -134,9 +156,11 @@ function gameController(board, playerX, playerO) {
     currentPlayer = playerX;
   };
 
+  let getGameStatus = () => [isGameOver, winner];
+
   // out here, turnCount should be 0, so no need to reset count
-  return { playTurn, printBoard, resetGame };
-}
+  return { playTurn, printBoard, getGameStatus, resetGame };
+};
 
 let game = gameController(board, playerX, playerO);
 
@@ -150,7 +174,7 @@ game.playTurn(1); // o
 game.playTurn(6); // x
 game.playTurn(8); // o Winner is o after 7 turns
 console.log(game.printBoard());
-// game.playTurn(3); // x
+game.playTurn(3); // x
 
 game.resetGame();
 console.log("==========================================");
@@ -164,8 +188,56 @@ game.playTurn(6); // o
 game.playTurn(2); // x Winner is x after 4 turns
 
 console.log(game.printBoard());
+game.resetGame();
 
-// progress
+// Test game 3 results in a tie as expected
+console.log("=============================");
+console.log(game.printBoard());
+game.playTurn(7);
+game.playTurn(6);
+game.playTurn(8);
+game.playTurn(5);
+game.playTurn(4);
+game.playTurn(1);
+game.playTurn(2);
+game.playTurn(0);
+game.playTurn(3);
+// This game is tie
+console.log(game.printBoard());
+// game.playTurn(3);
+// Test game 4 where someone tries the same spot twice mid-game and reset mid game
+console.log("=============================");
+console.log("Test game 4");
+game.resetGame();
+console.log(game.printBoard());
+game.playTurn(7);
+game.playTurn(6);
+game.playTurn(8);
+game.playTurn(8);
+game.playTurn(87);
+game.resetGame();
+console.log("=============================");
+console.log(game.printBoard());
+game.playTurn(7);
+game.playTurn(6);
+game.playTurn(8);
+console.log(game.getGameStatus());
+
+// Friday March 14th
+// make gameController into IIFE
+// test all invalid cases
+// move to DOM
+// dev log 1:
+// 1. moved isMarkValid inside placeMark since no other methods involves it
+// 2. changed winConditions into an array of arrays
+// 3. added return values for checkWinOrTie()
+// 4. improved player switching code readability
+// 5. improved efficiency in checkWinOrTie() by calling board.getBoard() once at the start of the function
+// 6. tested Edge cases
+// 7. added getGameSatus() inside game to querry isGameOver and winner for the DOM
+// 8. WHAT SHOUDL playTurn() RETURN FOR DOM?
+
+// Thursday March 13
 // update 1: when a win or tie is decided, if a player makes another turn it wont count
 // update 2: reset() includes game board, turnCount, isGameOver, winner, and currentPlayer. I tested it with a 2nd game and the game worked fine
 // update 3: turnCount starts at 0 and first player is X
