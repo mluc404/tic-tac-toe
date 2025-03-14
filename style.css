@@ -1,0 +1,53 @@
+* {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.cellGrid {
+  background-color: rgb(184, 184, 184);
+  border: grey solid 4px;
+  width: 300px;
+  height: 300px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+
+  /* gap: 5px; */
+}
+
+.cell {
+  border: rgb(75, 75, 75) solid 2px;
+  font-size: 4rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  transition: transform 0.2s ease-in-out;
+}
+
+.cell:hover {
+  background-color: #cbcbcb;
+  cursor: pointer;
+}
+
+.cell:active {
+  transform: scale(1.1);
+}
+
+button {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  background-color: skyblue;
+
+  transition: transform 0.1s ease-in-out;
+}
+
+/* button:hover {
+  background-color: #cbcbcb;
+  cursor: pointer;
+} */
+
+button:active {
+  transform: scale(1.05);
+}

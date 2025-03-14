@@ -40,9 +40,9 @@ let board2 = createGameboard();
 board2.placeMark(0, "k");
 // board2.placeMark(0, "m");
 
-console.log("testing board only <<<<<<<<<<<<");
-console.log(board2.getBoard());
-console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+// console.log("testing board only <<<<<<<<<<<<");
+// console.log(board2.getBoard());
+// console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 // Create player object
 function createPlayer(name, mark) {
@@ -59,6 +59,7 @@ let gameController = function (board, playerX, playerO) {
   let players = [playerX, playerO];
   let currentPlayer = null;
   let turnCount = 0;
+  let isMoveValid = null;
   let isGameOver = false;
   let winner = null;
 
@@ -122,11 +123,11 @@ let gameController = function (board, playerX, playerO) {
   // Flow: Decide current player - Place their mark - Check win/tie - Increment turns if valid
   let playTurn = (n) => {
     // if (turnCount >= 4) checkWinOrTie(); // why checkWinOrTie doesn't work properly out here, but works fine inside the below if() ???
-    console.log("turn count herer:", turnCount);
+    // console.log("turn count herer:", turnCount);
 
     if (!isGameOver && winner === null) {
       currentPlayer = players[turnCount % 2]; // playerX if turnCount is even, playerO if odd
-      let isMoveValid = board.placeMark(n, currentPlayer.mark);
+      isMoveValid = board.placeMark(n, currentPlayer.mark);
       // isMoveValid will interact with DOM later to tell player if their move is invalid
       if (turnCount >= 4) {
         let checkResult = checkWinOrTie(); // checkResult is for DOM later if needed
@@ -143,7 +144,7 @@ let gameController = function (board, playerX, playerO) {
       console.log("Yo game is alreay overr");
     }
 
-    return turnOutcome; // placeholder for now. will decide with DOM later
+    return [board.getBoard(), turnOutcome, isMoveValid]; // placeholder for now. will decide with DOM later
   };
 
   let printBoard = () => board.getBoard();
@@ -172,27 +173,27 @@ game.playTurn(2); // o
 game.playTurn(0); // x
 game.playTurn(1); // o
 game.playTurn(6); // x
-game.playTurn(8); // o Winner is o after 7 turns
-console.log(game.printBoard());
-game.playTurn(3); // x
+// game.playTurn(8); // o Winner is o after 7 turns
+// console.log(game.printBoard());
+// game.playTurn(3); // x
 
 game.resetGame();
-console.log("==========================================");
-console.log(game.printBoard());
+// console.log("==========================================");
+// console.log(game.printBoard());
 
 // Test game 2 works as expected
 game.playTurn(0); // x
 game.playTurn(3); // o
 game.playTurn(1); // x
 game.playTurn(6); // o
-game.playTurn(2); // x Winner is x after 4 turns
+// game.playTurn(2); // x Winner is x after 4 turns
 
-console.log(game.printBoard());
+// console.log(game.printBoard());
 game.resetGame();
 
 // Test game 3 results in a tie as expected
-console.log("=============================");
-console.log(game.printBoard());
+// console.log("=============================");
+// console.log(game.printBoard());
 game.playTurn(7);
 game.playTurn(6);
 game.playTurn(8);
@@ -201,27 +202,106 @@ game.playTurn(4);
 game.playTurn(1);
 game.playTurn(2);
 game.playTurn(0);
-game.playTurn(3);
+// game.playTurn(3);
 // This game is tie
-console.log(game.printBoard());
+// console.log(game.printBoard());
 // game.playTurn(3);
 // Test game 4 where someone tries the same spot twice mid-game and reset mid game
-console.log("=============================");
-console.log("Test game 4");
+// console.log("=============================");
+// console.log("Test game 4");
 game.resetGame();
-console.log(game.printBoard());
+// console.log(game.printBoard());
 game.playTurn(7);
 game.playTurn(6);
 game.playTurn(8);
 game.playTurn(8);
 game.playTurn(87);
 game.resetGame();
-console.log("=============================");
-console.log(game.printBoard());
-game.playTurn(7);
+// console.log("=============================");
+// console.log(game.printBoard());
+game.playTurn(0);
+game.playTurn(1);
+game.playTurn(2);
+game.playTurn(3);
+game.playTurn(4);
+game.playTurn(5);
 game.playTurn(6);
-game.playTurn(8);
-console.log(game.getGameStatus());
+// console.log(game.getGameStatus());
+// console.log(game.playTurn()[0]);
+game.resetGame();
+
+// OBJECT TO HANDLE DISPLAY
+let displayController = function (game) {
+  let displayDiv = document.querySelector(".cellGrid");
+  let cells = document.querySelectorAll(".cell");
+  let resetBtn = document.querySelector(".resetBtn");
+  let dialog = document.querySelector("dialog");
+  let endGameMsg = dialog.querySelector(".message");
+  let closeDialogBtn = dialog.querySelector(".closeDialog");
+
+  // Handle displaying mark on cell when clicked
+  let arr = game.printBoard();
+  cells.forEach((cell) => {
+    cell.addEventListener("click", (e) => {
+      let index = e.target.id[5]; // get the last character of cell id which is an integer
+      let isValidMove = game.playTurn(index)[2]; //
+      // alert red border when click on an occupied cell
+      if (!isValidMove) {
+        e.target.style.border = "red solid 4px";
+        // e.target.style.transform = "scale(1.2)";
+        setTimeout(() => {
+          e.target.style.border = "rgb(75, 75, 75) solid 2px";
+          // e.target.style.transform = "scale(1)";
+        }, 500);
+      }
+      e.target.textContent = arr[index];
+
+      // handle cell bg color
+      if (isValidMove && cell.textContent === "o") {
+        cell.style.backgroundColor = "#a8f0bc";
+      }
+      if (isValidMove && cell.textContent === "x") {
+        cell.style.backgroundColor = "pink";
+      }
+
+      // Handle dialog message when game over
+      let gameSatus = game.getGameStatus();
+      let checkGameOver = gameSatus[0];
+      console.log(`game status ${gameSatus}`);
+      if (checkGameOver) {
+        endGameMsg.textContent = gameSatus;
+        dialog.showModal();
+        console.log(endGameMsg.textContent);
+      }
+    });
+  });
+
+  // Handle reset button
+  resetBtn.addEventListener("click", (e) => {
+    game.resetGame();
+    cells.forEach((cell) => {
+      cell.textContent = "";
+      cell.style.backgroundColor = "";
+    });
+    console.log(game.printBoard());
+  });
+
+  // close dialog button
+  closeDialogBtn.addEventListener("click", () => {
+    dialog.close();
+  });
+
+  let renderBoard = () => {
+    return game.printBoard();
+  };
+
+  return { renderBoard };
+};
+
+// Test display
+let displayObj = displayController(game);
+
+// cells[0].textContent = "ha";
 
 // Friday March 14th
 // make gameController into IIFE
@@ -236,6 +316,13 @@ console.log(game.getGameStatus());
 // 6. tested Edge cases
 // 7. added getGameSatus() inside game to querry isGameOver and winner for the DOM
 // 8. WHAT SHOUDL playTurn() RETURN FOR DOM?
+// dev log 2:
+// start display obj
+// figured out how to match each cell with each mark on the board array
+// visually alert when player clicks on an occupied cell
+// distint colors for cells with x and o marks
+// added a reset game button
+// todo: add a dialog that pops up when game over
 
 // Thursday March 13
 // update 1: when a win or tie is decided, if a player makes another turn it wont count
