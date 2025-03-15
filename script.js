@@ -151,8 +151,6 @@ let game = gameController(board, playerX, playerO);
 let displayController = function (game) {
   let cells = document.querySelectorAll(".cell");
   let resetBtn = document.querySelector(".resetBtn");
-  let dialog = document.querySelector("dialog");
-  let endGameMsg = dialog.querySelector(".message");
   let messageonTop = document.querySelector(".messageOnTop");
 
   // Handle displaying mark on cell when clicked
@@ -183,7 +181,6 @@ let displayController = function (game) {
       let checkGameOver = gameSatus[0];
       if (checkGameOver) {
         messageonTop.textContent = gameSatus[1];
-        endGameMsg.textContent = gameSatus[1];
       }
     });
   });
