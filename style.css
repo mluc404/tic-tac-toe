@@ -2,22 +2,53 @@
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+body {
+  background-color: rgb(24, 26, 35);
+}
+
+h1 {
+  font-size: 3rem;
+  color: skyblue;
+}
+.tic {
+  color: #eba0ba;
+}
+
+.toe {
+  color: #8adea0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 5vh;
+}
+
+.messageOnTop {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  height: 30px;
+}
+
 .cellGrid {
-  background-color: rgb(184, 184, 184);
-  border: grey solid 4px;
   width: 300px;
   height: 300px;
 
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-
-  /* gap: 5px; */
+  gap: 5px;
+  margin-bottom: 20px;
 }
 
 .cell {
-  border: rgb(75, 75, 75) solid 2px;
+  background-color: rgba(135, 206, 235, 0.9);
   font-size: 4rem;
+  font-weight: 600;
 
   display: flex;
   justify-content: center;
@@ -32,21 +63,23 @@
 }
 
 .cell:active {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
-button {
-  margin-top: 20px;
-  font-size: 1.5rem;
-  background-color: skyblue;
-
+.resetBtn {
+  font-size: 1.8rem;
+  font-weight: 600;
+  width: 150px;
+  height: 50px;
+  border-radius: 15px;
+  background-color: #ee9048;
   transition: transform 0.1s ease-in-out;
 }
 
-/* button:hover {
-  background-color: #cbcbcb;
+button:hover {
+  background-color: skyblue;
   cursor: pointer;
-} */
+}
 
 button:active {
   transform: scale(1.05);
